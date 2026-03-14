@@ -38,3 +38,34 @@ Frontend
 ---
 
 # Project Structure
+
+project-root  
+ ├ app  
+ │   ├ main.py  
+ │   ├ fetcher.py  
+ │   ├ parser.py  
+ │   ├ config.py  
+ │   ├ history.py  
+ │   └ templates  
+ │        └ index.html  
+ │
+ ├ requirements.txt  
+ └ README.md  
+
+---
+
+# Installation
+
+### 1. Clone
+git clone https://github.com/YOUR_ID/naver-realestate-tracker.git
+cd naver-realestate-tracker
+
+### 2. Virtual Environment
+python -m venv .venv
+.venv\Scripts\activate
+
+
+### 3. Install Dependencies
+pip install -r requirements.txt
+
+
