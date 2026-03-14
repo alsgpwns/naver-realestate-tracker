@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>네이버 부동산 매물 조회</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 32px 0;
+      font-family: Arial, sans-serif;
+      background: #2f3136;
+      color: #f1e9dc;
+    }
+
+    .container {
+      width: 1080px;
+      max-width: calc(100% - 32px);
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0 0 28px;
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    h2 {
+      margin: 32px 0 16px;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .filter-box {
+      background: #3a3b3f;
+      border: 1px solid #8c7b65;
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 24px;
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #e8dcc9;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      height: 40px;
+      padding: 0 12px;
+      border-radius: 10px;
+      border: 1px solid #8c7b65;
+      background: #45464a;
+      color: #f7efe3;
+      outline: none;
+      font-size: 15px;
+    }
+
+    .actions {
+      margin-top: 18px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 74px;
+      height: 40px;
+      padding: 0 16px;
+      border: 0;
+      border-radius: 10px;
+      background: #5f6ea8;
+      color: white;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .summary {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 8px 0 18px;
+    }
+
+    .card {
+      background: #3a3b3f;
+      border: 1px solid #8c7b65;
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .card h3 {
+      margin: 0 0 14px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .meta-line {
+      margin-bottom: 8px;
+      line-height: 1.55;
+      color: #f1e9dc;
+    }
+
+    .muted {
+      margin-top: 10px;
+      color: #d6c8b8;
+      line-height: 1.6;
+    }
+
+    .empty {
+      background: #3a3b3f;
+      border: 1px solid #8c7b65;
+      border-radius: 14px;
+      padding: 20px;
+      color: #d6c8b8;
+    }
+
+    a {
+      color: #8fb4ff;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .badge {
+      display: inline-block;
+      margin-left: 8px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(255, 184, 107, 0.16);
+      color: #ffb86b;
+      font-size: 12px;
+      font-weight: 700;
+      vertical-align: middle;
+    }
+
+    .score-badge {
+      display: inline-block;
+      margin-left: 8px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(143, 180, 255, 0.16);
+      color: #8fb4ff;
+      font-size: 12px;
+      font-weight: 700;
+      vertical-align: middle;
+    }
+
+    @media (max-width: 900px) {
+      .filter-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 560px) {
+      .filter-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .container {
+        max-width: calc(100% - 20px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>네이버 부동산 매물 조회</h1>
+
+    <form method="get" action="/" class="filter-box">
+      <div class="filter-grid">
+        <div class="field">
+          <label for="trade_type">거래유형</label>
+          <select id="trade_type" name="trade_type">
+            {% for option in trade_type_options %}
+              <option value="{{ option }}" {% if selected_trade_type == option %}selected{% endif %}>{{ option }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="rlet_type">매물유형</label>
+          <select id="rlet_type" name="rlet_type">
+            {% for option in rlet_type_options %}
+              <option value="{{ option }}" {% if selected_rlet_type == option %}selected{% endif %}>{{ option }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="gu_name">구</label>
+          <select id="gu_name" name="gu_name">
+            {% for option in gu_options %}
+              <option value="{{ option }}" {% if selected_gu_name == option %}selected{% endif %}>{{ option }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="dong_name">동</label>
+          <select id="dong_name" name="dong_name">
+            {% for option in dong_options %}
+              <option value="{{ option }}" {% if selected_dong_name == option %}selected{% endif %}>{{ option }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="min_pyung">최소 평수</label>
+          <input id="min_pyung" type="number" step="0.1" name="min_pyung" value="{{ selected_min_pyung }}" />
+        </div>
+
+        <div class="field">
+          <label for="max_pyung">최대 평수</label>
+          <input id="max_pyung" type="number" step="0.1" name="max_pyung" value="{{ selected_max_pyung }}" />
+        </div>
+
+        <div class="field">
+          <label for="max_eok">최대 매매가/전세가(억)</label>
+          <input id="max_eok" type="number" step="0.1" name="max_eok" value="{{ selected_max_eok }}" />
+        </div>
+
+        <div class="field">
+          <label for="max_deposit_eok">월세 최대 보증금(억)</label>
+          <input id="max_deposit_eok" type="number" step="0.1" name="max_deposit_eok" value="{{ selected_max_deposit_eok }}" />
+        </div>
+
+        <div class="field">
+          <label for="min_household_count">최소 세대수</label>
+          <input id="min_household_count" type="number" name="min_household_count" value="{{ selected_min_household_count }}" />
+        </div>
+
+        <div class="field">
+          <label for="max_building_age">최대 연식(년)</label>
+          <input id="max_building_age" type="number" name="max_building_age" value="{{ selected_max_building_age }}" />
+        </div>
+
+        <div class="field">
+          <label for="sort_by">정렬</label>
+          <select id="sort_by" name="sort_by">
+            {% for value, label in sort_options %}
+              <option value="{{ value }}" {% if selected_sort_by == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn">조회</button>
+      </div>
+    </form>
+
+    <div class="summary">총 {{ count }}건</div>
+
+    {% if bargain_list %}
+      <h2>급매 후보 {{ bargain_list|length }}건</h2>
+
+      {% for item in bargain_list %}
+      <div class="card" style="border: 1px solid #c96; box-shadow: 0 0 0 1px rgba(255,180,80,0.15) inset;">
+        <h3>
+          {{ item.complex_name }}
+          <span class="badge">급매 후보</span>
+          <span class="score-badge">점수 {{ item.bargain_score }}</span>
+        </h3>
+
+        <div class="meta-line">가격 : {{ item.deposit }}</div>
+        <div class="meta-line">거래유형 : {{ item.deal_type }}</div>
+        <div class="meta-line">매물유형 : {{ item.rlet_type }}</div>
+        <div class="meta-line">평형 : {{ item.area_bucket }} / {{ item.area_pyung }}평</div>
+        <div class="meta-line">층 : {{ item.floor }}</div>
+        <div class="meta-line">세대수 : {{ item.household_count if item.household_count is not none else "-" }}세대</div>
+
+        <div class="meta-line">
+          사용승인일 :
+          {% if item.approval_date %}
+            {{ item.approval_date }}
+          {% else %}
+            -
+          {% endif %}
+        </div>
+
+        <div class="meta-line">
+          연식 :
+          {% if item.building_age_years is not none %}
+            {{ item.building_age_years }}년
+          {% else %}
+            -
+          {% endif %}
+        </div>
+
+        <div class="meta-line">그룹 건수 : {{ item.group_count }}건</div>
+        <div class="meta-line">그룹 최저가 : {{ item.bargain_min_price_text }}</div>
+        <div class="meta-line">그룹 중앙값 : {{ item.bargain_median_price_text }}</div>
+        <div class="meta-line">최저가와 차이 : {{ item.bargain_gap_text }}</div>
+        <div class="meta-line">중앙값 대비 할인율 : {{ item.median_gap_rate }}%</div>
+        <div class="meta-line">그룹 내 가격 순위 : 하위 {{ item.percentile_rank }}%</div>
+
+        {% if item.is_bargain_keyword %}
+          <div class="meta-line" style="color:#ffb86b;">설명문구 기준 급매 키워드 포함</div>
+        {% endif %}
+
+        {% if item.article_name %}
+          <div class="muted">{{ item.article_name }}</div>
+        {% endif %}
+
+        <div style="margin-top:10px;">
+          <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">매물 보기</a>
+        </div>
+      </div>
+      {% endfor %}
+    {% endif %}
+
+    {% if general_list %}
+      <h2>전체 매물 {{ general_list|length }}건</h2>
+
+      {% for item in general_list %}
+      <div class="card">
+        <h3>
+          {{ item.complex_name }}
+          {% if item.bargain_score and item.bargain_score > 0 %}
+            <span class="score-badge">점수 {{ item.bargain_score }}</span>
+          {% endif %}
+        </h3>
+
+        <div class="meta-line">가격 : {{ item.deposit }}</div>
+        <div class="meta-line">거래유형 : {{ item.deal_type }}</div>
+        <div class="meta-line">매물유형 : {{ item.rlet_type }}</div>
+        <div class="meta-line">평형 : {{ item.area_bucket }} / {{ item.area_pyung }}평</div>
+        <div class="meta-line">층 : {{ item.floor }}</div>
+        <div class="meta-line">세대수 : {{ item.household_count if item.household_count is not none else "-" }}세대</div>
+
+        <div class="meta-line">
+          사용승인일 :
+          {% if item.approval_date %}
+            {{ item.approval_date }}
+          {% else %}
+            -
+          {% endif %}
+        </div>
+
+        <div class="meta-line">
+          연식 :
+          {% if item.building_age_years is not none %}
+            {{ item.building_age_years }}년
+          {% else %}
+            -
+          {% endif %}
+        </div>
+
+        {% if item.bargain_min_price_text %}
+          <div class="meta-line">그룹 최저가 : {{ item.bargain_min_price_text }}</div>
+        {% endif %}
+
+        {% if item.bargain_gap_text %}
+          <div class="meta-line">최저가와 차이 : {{ item.bargain_gap_text }}</div>
+        {% endif %}
+
+        {% if item.article_name %}
+          <div class="muted">{{ item.article_name }}</div>
+        {% endif %}
+
+        <div style="margin-top:10px;">
+          <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">매물 보기</a>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty">조건에 맞는 매물이 없습니다.</div>
+    {% endif %}
+  </div>
+</body>
+</html>
